@@ -1,23 +1,32 @@
 package singleton;
 
+import observer.Observer;
+import observer.Subject;
+
 import java.util.ArrayList;
 import java.util.List;
 
-// Garantiza que solo exista una instancia del Logger en todo el programa
+// Ahora Logger también es un Subject
+public class Logger implements Subject {
 
-public class Logger {
-
-    // Instancia unica estatica
+    // Instancia única (Singleton)
     private static Logger instancia;
 
-    // Constructor privado para evitar que se creen mas instancias con "new"
+    // Historial de eventos
     private List<String> historial;
 
-    // Metodo global para obtener la unica instancia
+    // Lista de observadores
+    private List<Observer> observers;
+
+    // Constructor privado
     private Logger() {
+
         historial = new ArrayList<>();
+        observers = new ArrayList<>();
+
     }
 
+    // Devuelve la única instancia
     public static Logger getInstance() {
 
         if (instancia == null) {
@@ -27,10 +36,16 @@ public class Logger {
         return instancia;
     }
 
+    // Registra un evento y notifica a todos los observadores
     public void registrar(String mensaje) {
+
         historial.add(mensaje);
+
+        notificarObservers(mensaje);
+
     }
 
+    // Muestra el historial completo
     public void mostrarHistorial() {
 
         System.out.println("\n=== HISTORIAL ===");
@@ -38,6 +53,30 @@ public class Logger {
         for (String evento : historial) {
             System.out.println(evento);
         }
-    }
-}
 
+    }
+
+    // ==========================
+    // MÉTODOS DEL OBSERVER
+    // ==========================
+
+    @Override
+    public void agregarObserver(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void eliminarObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notificarObservers(String mensaje) {
+
+        for (Observer observer : observers) {
+            observer.actualizar(mensaje);
+        }
+
+    }
+
+}
